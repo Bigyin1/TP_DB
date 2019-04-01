@@ -17,9 +17,9 @@ func Init() (db *Database, err error) {
 	db = &Database{
 		DB: nil,
 	}
-	dbURL := "user=docker password=docker dbname=docker sslmode=disable"
+	dbCredentials := "user=docker password=docker dbname=docker sslmode=disable"
 
-	if db.DB, err = sql.Open("postgres", dbURL); err != nil {
+	if db.DB, err = sql.Open("postgres", dbCredentials); err != nil {
 		fmt.Println("db/Init cant open:" + err.Error())
 		return
 	}

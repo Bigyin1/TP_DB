@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"gohw/internal/services/api"
+	"gohw/internal/api"
 
 	"net/http"
 
@@ -10,9 +10,8 @@ import (
 )
 
 func main() {
-	const confPath = "conf.json"
 
-	_, err := api.GetHandler()
+	API, err := api.GetHandler()
 	if err != nil {
 		fmt.Println("Some error happened with configuration file or database" + err.Error())
 		return
@@ -20,7 +19,7 @@ func main() {
 	r := mux.NewRouter()
 	var v = r.PathPrefix("/api").Subrouter()
 	//API.Ok()
-	// v.HandleFunc("user/{name}/create", user.CreateUser).Methods("POST")
+	v.HandleFunc("/user/{name}/create", API.CreateUser).Methods("POST")
 	// v.HandleFunc("user/{name}/profile", user.InfoUser).Methods("GET")
 	// v.HandleFunc("user/{name}/profile", user.UpdateUser).Methods("POST")
 
@@ -42,7 +41,7 @@ func main() {
 	// v.HandleFunc("service/status", service.Status).Methods("GET")
 
 	fmt.Println("Running on port 3000")
-	if err = http.ListenAndServe(":3000", v); err != nil {
+	if err = http.ListenAndServe(":3000", r); err != nil {
 		fmt.Println("oh, this is error:" + err.Error())
 	}
 }
