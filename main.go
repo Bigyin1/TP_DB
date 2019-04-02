@@ -22,11 +22,11 @@ func main() {
 	v.HandleFunc("/user/{name}/create", API.CreateUser).Methods("POST")
 	v.HandleFunc("/user/{name}/profile", API.ProfileUser).Methods("GET")
 	v.HandleFunc("/user/{name}/profile", API.UpdateUser).Methods("POST")
+	v.HandleFunc("/forum/create", API.CreateForum).Methods("POST")
 
 	// v.HandleFunc("forum/{slug}/details", forum.InfoForum).Methods("GET")
 	// v.HandleFunc("forum/{slug}/users", forum.UsersForum).Methods("GET")
 
-	// v.HandleFunc("forum/{slug}/create", thread.CreateThread).Methods("POST")
 	// v.HandleFunc("forum/{slug}/threads", thread.Threads).Methods("GET")
 	// v.HandleFunc("thread/{slug_or_id}/create", thread.CreatePosts).Methods("POST")
 	// v.HandleFunc("thread/{slug_or_id}/vote", thread.Vote).Methods("POST")

@@ -33,7 +33,7 @@ func (h *Handler) CreateUser(rw http.ResponseWriter, r *http.Request) {
 		response(rw, http.StatusConflict, users)
 		return
 	}
-	response(rw, http.StatusCreated, nil)
+	response(rw, http.StatusCreated, user)
 	return
 }
 

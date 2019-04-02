@@ -19,12 +19,12 @@ CREATE TABLE IF NOT EXISTS users (
 
 ----------------FORUMS----------------
 CREATE TABLE IF NOT EXISTS forums (
-  id      BIGSERIAL                               PRIMARY KEY,
-  posts   INT                          NOT NULL                 DEFAULT 0,
-  slug    CITEXT                       NOT NULL                             UNIQUE,
-  threads INT                          NOT NULL                 DEFAULT 0,
-  title   CITEXT                       NOT NULL,
-  nickname CITEXT                       NOT NULL                 REFERENCES users(nickname)
+  id      BIGSERIAL  PRIMARY KEY,
+  posts   INT  NOT NULL  DEFAULT 0,
+  slug    CITEXT  NOT NULL  UNIQUE,
+  threads INT   NOT NULL  DEFAULT 0,
+  title   CITEXT  NOT NULL,
+  owner CITEXT  NOT NULL  REFERENCES users(nickname)
 );
 
 ----------------THREADS----------------
