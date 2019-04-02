@@ -1,7 +1,6 @@
 package db
 
 import (
-	"fmt"
 	"gohw/internal/models"
 )
 
@@ -20,18 +19,55 @@ func (db *Database) GetAllCollisionUsers(user *models.User) (usrs models.Users, 
 				WHERE u.nickname=$1 OR u.email=$2;`
 	rows, err := db.DB.Query(sqlQuery, user.Nickname, user.Email)
 	if err != nil {
-		fmt.Printf("GetAllCollisionUsers error : %s\n", err.Error())
 		return
 	}
 
 	for rows.Next() {
 		u := &models.User{}
 		if err = rows.Scan(&u.Nickname, &u.Fullname, &u.About, &u.Email); err != nil {
-			fmt.Printf("GetAllCollisionUsers error : %s\n", err.Error())
 			return
 		}
 		usrs = append(usrs, u)
 	}
 	rows.Close()
+	return
+}
+
+func (db *Database) GetUserByName(name string) (user models.User, err error) {
+
+	sqlQuery := `SELECT nickname, fullname, about, email
+				FROM users u
+				WHERE nickname=$1;`
+
+	row, err := db.DB.Query(sqlQuery, name)
+	if err != nil {
+		return
+	}
+
+	row.Next()
+	if err = row.Scan(&user.Nickname, &user.Fullname, &user.About, &user.Email); err != nil {
+		return
+	}
+	return
+}
+
+func (db *Database) UpdateProfile(user *models.User) (err error) {
+
+	sqlQuery := `UPDATE users
+	SET
+		email    = COALESCE(NULLIF($1, ''), email),
+		about    = COALESCE(NULLIF($2, ''), about),
+		fullname = COALESCE(NULLIF($3, ''), fullname)
+	WHERE nickname=$4
+	RETURNING fullname, about, email;`
+
+	row, err := db.DB.Query(sqlQuery, user.Email, user.About, user.Fullname, user.Nickname)
+	if err != nil {
+		return
+	}
+	row.Next()
+	if err = row.Scan(&user.Fullname, &user.About, &user.Email); err != nil {
+		return
+	}
 	return
 }

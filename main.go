@@ -20,8 +20,8 @@ func main() {
 	var v = r.PathPrefix("/api").Subrouter()
 	//API.Ok()
 	v.HandleFunc("/user/{name}/create", API.CreateUser).Methods("POST")
-	// v.HandleFunc("user/{name}/profile", user.InfoUser).Methods("GET")
-	// v.HandleFunc("user/{name}/profile", user.UpdateUser).Methods("POST")
+	v.HandleFunc("/user/{name}/profile", API.ProfileUser).Methods("GET")
+	v.HandleFunc("/user/{name}/profile", API.UpdateUser).Methods("POST")
 
 	// v.HandleFunc("forum/{slug}/details", forum.InfoForum).Methods("GET")
 	// v.HandleFunc("forum/{slug}/users", forum.UsersForum).Methods("GET")
