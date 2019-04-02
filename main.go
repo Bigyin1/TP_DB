@@ -24,7 +24,8 @@ func main() {
 	v.HandleFunc("/user/{name}/profile", API.UpdateUser).Methods("POST")
 	v.HandleFunc("/forum/create", API.CreateForum).Methods("POST")
 
-	// v.HandleFunc("forum/{slug}/details", forum.InfoForum).Methods("GET")
+	v.HandleFunc("/forum/{slug}/details", API.ForumDetails).Methods("GET")
+	v.HandleFunc("/forum/{slug}/create", API.CreateThread).Methods("POST")
 	// v.HandleFunc("forum/{slug}/users", forum.UsersForum).Methods("GET")
 
 	// v.HandleFunc("forum/{slug}/threads", thread.Threads).Methods("GET")

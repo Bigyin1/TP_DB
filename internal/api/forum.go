@@ -6,6 +6,8 @@ import (
 	"gohw/internal/models"
 	rerrors "gohw/internal/return_errors"
 	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
 func (h *Handler) CreateForum(rw http.ResponseWriter, r *http.Request) {
@@ -31,5 +33,21 @@ func (h *Handler) CreateForum(rw http.ResponseWriter, r *http.Request) {
 	default:
 		response(rw, http.StatusCreated, forum)
 	}
+
+}
+
+func (h *Handler) ForumDetails(rw http.ResponseWriter, r *http.Request) {
+
+	var (
+		forum models.Forum
+		err   error
+	)
+
+	if forum, err = h.db.GetForumBySlug(mux.Vars(r)["slug"]); err != nil {
+		message := models.Message{Message: "Can't find forum with slug: " + mux.Vars(r)["slug"]}
+		response(rw, http.StatusBadRequest, message)
+		return
+	}
+	response(rw, http.StatusOK, forum)
 
 }

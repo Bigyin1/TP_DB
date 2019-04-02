@@ -29,14 +29,14 @@ CREATE TABLE IF NOT EXISTS forums (
 
 ----------------THREADS----------------
 CREATE TABLE IF NOT EXISTS threads (
-  id        BIGSERIAL                             PRIMARY KEY,
-  author    CITEXT                      NOT NULL                REFERENCES users(nickname),
-  created   TIMESTAMPTZ                 NOT NULL,
-  forum     CITEXT                      NOT NULL,
-  message   TEXT                        NOT NULL,
-  slug      CITEXT                                               DEFAULT NULL UNIQUE,
-  title     CITEXT                      NOT NULL,
-  votes     INT                         NOT NULL                 DEFAULT 0
+  id        BIGSERIAL  PRIMARY KEY,
+  author    CITEXT  NOT NULL  REFERENCES users(nickname),
+  created   TIMESTAMPTZ  NOT NULL,
+  forum     CITEXT  NOT NULL  REFERENCES forums(slug),
+  message   TEXT  NOT NULL,
+  slug      CITEXT  DEFAULT NULL UNIQUE,
+  title     CITEXT  NOT NULL,
+  votes     INT  NOT NULL  DEFAULT 0
 );
 
 
