@@ -36,7 +36,7 @@ func main() {
 	// v.HandleFunc("thread/{slug_or_id}/details", thread.UpdateThread).Methods("POST")
 
 	v.HandleFunc("/post/{id}/details", API.PostDetails).Methods("GET")
-	// v.HandleFunc("post/{id}/details", post.UpdatePost).Methods("POST")
+	v.HandleFunc("/post/{id}/details", API.PostUpdate).Methods("POST")
 
 	// v.HandleFunc("service/clear", service.Clear).Methods("POST")
 	// v.HandleFunc("service/status", service.Status).Methods("GET")

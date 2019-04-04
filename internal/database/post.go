@@ -15,3 +15,14 @@ func (db *Database) GetPostByID(id int) (post models.Post, err error) {
 
 	return
 }
+
+func (db *Database) UpdatePost(post *models.Post) (err error) {
+
+	sqlQuery := `UPDATE posts
+				SET message = $1,
+					is_edited = $2
+				WHERE posts.id = $3;
+				`
+	_, err = db.DB.Query(sqlQuery, post.Message, post.IsEdited, post.ID)
+	return
+}
