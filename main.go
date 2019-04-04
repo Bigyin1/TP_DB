@@ -38,7 +38,7 @@ func main() {
 	v.HandleFunc("/post/{id}/details", API.PostDetails).Methods("GET")
 	v.HandleFunc("/post/{id}/details", API.PostUpdate).Methods("POST")
 
-	// v.HandleFunc("service/clear", service.Clear).Methods("POST")
+	v.HandleFunc("/service/clear", API.ServiceClear).Methods("POST")
 	// v.HandleFunc("service/status", service.Status).Methods("GET")
 
 	fmt.Println("Running on port 3000")
