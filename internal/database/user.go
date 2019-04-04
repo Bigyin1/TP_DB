@@ -1,6 +1,7 @@
 package db
 
 import (
+	"fmt"
 	"gohw/internal/models"
 )
 
@@ -124,5 +125,17 @@ func (db *Database) GetUsersByForum(query models.URLQuery) (users models.Users, 
 	}
 	rows.Close()
 
+	return
+}
+
+func (db *Database) CountUsers() (count int, err error) {
+
+	sqlQuery := `SELECT COUNT(*) FROM users;`
+
+	row := db.DB.QueryRow(sqlQuery)
+
+	if err = row.Scan(&count); err != nil {
+		fmt.Printf("CountUsers error: %s", err.Error())
+	}
 	return
 }

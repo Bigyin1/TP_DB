@@ -39,7 +39,7 @@ func main() {
 	v.HandleFunc("/post/{id}/details", API.PostUpdate).Methods("POST")
 
 	v.HandleFunc("/service/clear", API.ServiceClear).Methods("POST")
-	// v.HandleFunc("service/status", service.Status).Methods("GET")
+	v.HandleFunc("/service/status", API.ServiceInfo).Methods("GET")
 
 	fmt.Println("Running on port 3000")
 	if err = http.ListenAndServe(":3000", r); err != nil {

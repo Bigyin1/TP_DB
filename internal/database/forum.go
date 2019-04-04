@@ -41,3 +41,15 @@ func (db *Database) CreateForum(forum *models.Forum) (err error) {
 	}
 	return errors.New("No Error")
 }
+
+func (db *Database) CountForums() (count int, err error) {
+
+	sqlQuery := `SELECT COUNT(*) FROM forums;`
+
+	row := db.DB.QueryRow(sqlQuery)
+
+	if err = row.Scan(&count); err != nil {
+		fmt.Printf("CountForums error: %s", err.Error())
+	}
+	return
+}

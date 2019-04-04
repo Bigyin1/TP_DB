@@ -1,6 +1,7 @@
 package db
 
 import (
+	"fmt"
 	"gohw/internal/models"
 )
 
@@ -24,5 +25,17 @@ func (db *Database) UpdatePost(post *models.Post) (err error) {
 				WHERE posts.id = $3;
 				`
 	_, err = db.DB.Query(sqlQuery, post.Message, post.IsEdited, post.ID)
+	return
+}
+
+func (db *Database) CountPosts() (count int, err error) {
+
+	sqlQuery := `SELECT COUNT(*) FROM posts;`
+
+	row := db.DB.QueryRow(sqlQuery)
+
+	if err = row.Scan(&count); err != nil {
+		fmt.Printf("CountPosts error: %s", err.Error())
+	}
 	return
 }

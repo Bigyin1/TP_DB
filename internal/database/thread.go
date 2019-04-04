@@ -106,3 +106,15 @@ func (db *Database) GetForumThreads(query models.URLQuery) (threads models.Threa
 	rows.Close()
 	return
 }
+
+func (db *Database) CountThreads() (count int, err error) {
+
+	sqlQuery := `SELECT COUNT(*) FROM threads;`
+
+	row := db.DB.QueryRow(sqlQuery)
+
+	if err = row.Scan(&count); err != nil {
+		fmt.Printf("CountThreads error: %s", err.Error())
+	}
+	return
+}
