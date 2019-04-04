@@ -26,7 +26,7 @@ func main() {
 
 	v.HandleFunc("/forum/{slug}/details", API.ForumDetails).Methods("GET")
 	v.HandleFunc("/forum/{slug}/create", API.CreateThread).Methods("POST")
-	// v.HandleFunc("forum/{slug}/users", forum.UsersForum).Methods("GET")
+	v.HandleFunc("/forum/{slug}/users", API.ForumUsers).Methods("GET")
 
 	// v.HandleFunc("forum/{slug}/threads", thread.Threads).Methods("GET")
 	// v.HandleFunc("thread/{slug_or_id}/create", thread.CreatePosts).Methods("POST")

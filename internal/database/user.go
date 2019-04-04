@@ -1,6 +1,7 @@
 package db
 
 import (
+	"fmt"
 	"gohw/internal/models"
 )
 
@@ -69,5 +70,56 @@ func (db *Database) UpdateProfile(user *models.User) (err error) {
 	if err = row.Scan(&user.Fullname, &user.About, &user.Email); err != nil {
 		return
 	}
+	return
+}
+
+func (db *Database) GetUsersByForum(query models.ForumUsersQuery) (users models.Users, err error) {
+
+	sqlQuery := `SELECT DISTINCT u.nickname, u.fullname, u.about, u.email
+				FROM forums f
+				JOIN threads t on f.slug=t.forum
+				JOIN users u on t.author=u.nickname
+				WHERE f.slug like $1`
+
+	if query.Desc {
+		sqlQuery += ` AND u.nickname < $2`
+	} else {
+		sqlQuery += ` AND u.nickname > $2`
+	}
+	sqlQuery += ` UNION DISTINCT SELECT DISTINCT u.nickname, u.fullname, u.about, u.email
+	FROM forums f
+	JOIN posts p on f.slug=p.forum
+	JOIN users u on p.author=u.nickname
+	WHERE f.slug like $1`
+
+	if query.Desc {
+		sqlQuery += ` AND u.nickname < $2`
+	} else {
+		sqlQuery += ` AND u.nickname > $2`
+	}
+
+	if query.Desc {
+		sqlQuery += ` ORDER BY 1 DESC`
+	} else {
+		sqlQuery += ` ORDER BY 1 ASC`
+	}
+
+	sqlQuery += ` LIMIT $3;`
+
+	fmt.Println(sqlQuery)
+	rows, err := db.DB.Query(sqlQuery, query.Slug, query.Since, query.Limit)
+	if err != nil {
+		return
+	}
+
+	for rows.Next() {
+		u := &models.User{}
+		if err = rows.Scan(&u.Nickname, &u.Fullname, &u.About, &u.Email); err != nil {
+			return
+		}
+		users = append(users, u)
+	}
+	rows.Close()
+
 	return
 }

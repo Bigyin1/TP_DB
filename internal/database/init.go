@@ -3,6 +3,7 @@ package db
 import (
 	"database/sql"
 	"fmt"
+	"io/ioutil"
 
 	//
 	_ "github.com/lib/pq"
@@ -29,6 +30,26 @@ func Init() (db *Database, err error) {
 	if err = db.DB.Ping(); err != nil {
 		fmt.Println("db/Init cant access:" + err.Error())
 		return
+	}
+
+	query, err := ioutil.ReadFile("scheme.sql")
+	if err != nil {
+		panic(err)
+	}
+
+	_, err = db.DB.Exec(string(query))
+	if err != nil {
+		fmt.Println("database/init - fail:" + err.Error())
+	}
+
+	query, err = ioutil.ReadFile("init.sql")
+	if err != nil {
+		panic(err)
+	}
+
+	_, err = db.DB.Exec(string(query))
+	if err != nil {
+		fmt.Println("database/init - fail:" + err.Error())
 	}
 
 	return

@@ -85,3 +85,25 @@ func (h *Handler) UpdateUser(rw http.ResponseWriter, r *http.Request) {
 	response(rw, http.StatusOK, user)
 
 }
+
+func (h *Handler) ForumUsers(rw http.ResponseWriter, r *http.Request) {
+
+	var (
+		users models.Users
+		err   error
+		query models.ForumUsersQuery
+	)
+	query.Init(r)
+
+	if _, err = h.db.GetForumBySlug(query.Slug); err != nil {
+		message := models.Message{Message: "Forum not found"}
+		response(rw, http.StatusNotFound, message)
+		return
+	}
+	if users, err = h.db.GetUsersByForum(query); err != nil {
+		fmt.Printf("ForumUsers error: ", err.Error())
+		return
+	}
+	response(rw, http.StatusOK, users)
+
+}
