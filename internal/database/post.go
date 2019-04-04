@@ -39,3 +39,17 @@ func (db *Database) CountPosts() (count int, err error) {
 	}
 	return
 }
+
+func (db *Database) CreatePost(post *models.Post) (err error) {
+
+	sqlQuery := `INSERT into posts(author, forum, message, parent, thread)
+				VALUES($1, $2, $3, $4, $5)
+				RETURNING id;`
+
+	row := db.DB.QueryRow(sqlQuery, post.Author, post.Forum, post.Message, post.Parent, post.Thread)
+
+	if err = row.Scan(&post.ID); err != nil {
+		fmt.Printf("CreatePost error: %s", err.Error())
+	}
+	return
+}

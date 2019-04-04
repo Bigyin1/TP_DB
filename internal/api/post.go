@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/gorilla/mux"
 )
@@ -95,4 +96,59 @@ func (h *Handler) PostUpdate(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 	response(rw, http.StatusOK, post)
+}
+
+func (h *Handler) CreatePosts(rw http.ResponseWriter, r *http.Request) {
+
+	var (
+		//post   models.Post
+		posts  models.Posts
+		thread models.Thread
+		err    error
+	)
+
+	if id, err := strconv.Atoi(mux.Vars(r)["slug_or_id"]); err != nil {
+		if thread, err = h.db.GetThreadBySlug(mux.Vars(r)["slug_or_id"]); err != nil {
+			message := models.Message{Message: "Can't find thread for new posts"}
+			response(rw, http.StatusNotFound, message)
+			return
+		}
+	} else {
+		if thread, err = h.db.GetThreadByID(id); err != nil {
+			message := models.Message{Message: "Can't find thread for new posts"}
+			response(rw, http.StatusNotFound, message)
+			return
+		}
+	}
+
+	if err = json.NewDecoder(r.Body).Decode(&posts); err != nil {
+		fmt.Printf("PostChange error: %s at %s\n", err.Error(), r.URL)
+		response(rw, http.StatusBadRequest, nil)
+		return
+	}
+
+	created := time.Now()
+	for _, post := range posts {
+		post.Created = created
+		post.Forum = thread.Forum
+		post.Thread = thread.ID
+		if post.Parent != 0 {
+			parent, err := h.db.GetPostByID(post.Parent)
+			if parent.Thread != post.Thread || err != nil {
+				message := models.Message{Message: "Can't find parent post for new post: " + strconv.Itoa(post.ID)}
+				response(rw, http.StatusConflict, message)
+				return
+			}
+		}
+		if _, err = h.db.GetUserByName(post.Author); err != nil {
+			message := models.Message{Message: "Can't find author for new post: " + post.Author}
+			response(rw, http.StatusConflict, message)
+			return
+		}
+		if err = h.db.CreatePost(post); err != nil {
+			response(rw, http.StatusInternalServerError, nil)
+			return
+		}
+	}
+	response(rw, http.StatusCreated, posts)
 }
