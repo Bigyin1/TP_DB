@@ -91,7 +91,7 @@ func (h *Handler) ForumUsers(rw http.ResponseWriter, r *http.Request) {
 	var (
 		users models.Users
 		err   error
-		query models.ForumUsersQuery
+		query models.URLQuery
 	)
 	query.Init(r)
 

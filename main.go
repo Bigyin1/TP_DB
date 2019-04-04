@@ -28,14 +28,14 @@ func main() {
 	v.HandleFunc("/forum/{slug}/create", API.CreateThread).Methods("POST")
 	v.HandleFunc("/forum/{slug}/users", API.ForumUsers).Methods("GET")
 
-	// v.HandleFunc("forum/{slug}/threads", thread.Threads).Methods("GET")
+	v.HandleFunc("/forum/{slug}/threads", API.ForumThreadList).Methods("GET")
 	// v.HandleFunc("thread/{slug_or_id}/create", thread.CreatePosts).Methods("POST")
 	// v.HandleFunc("thread/{slug_or_id}/vote", thread.Vote).Methods("POST")
 	// v.HandleFunc("thread/{slug_or_id}/details", thread.ThreadInfo).Methods("GET")
 	// v.HandleFunc("thread/{slug_or_id}/posts", thread.SortPosts).Methods("GET")
 	// v.HandleFunc("thread/{slug_or_id}/details", thread.UpdateThread).Methods("POST")
 
-	// v.HandleFunc("post/{id}/details", post.InfoPost).Methods("GET")
+	v.HandleFunc("/post/{id}/details", API.PostDetails).Methods("GET")
 	// v.HandleFunc("post/{id}/details", post.UpdatePost).Methods("POST")
 
 	// v.HandleFunc("service/clear", service.Clear).Methods("POST")

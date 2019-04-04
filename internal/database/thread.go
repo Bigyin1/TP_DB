@@ -25,6 +25,24 @@ func (db *Database) GetThreadBySlug(slug string) (thread models.Thread, err erro
 	return
 }
 
+func (db *Database) GetThreadByID(id int) (thread models.Thread, err error) {
+
+	sqlQuery := `SELECT id, created, slug, message, title, votes, forum, author
+				FROM threads
+				WHERE id=$1;`
+
+	row, err := db.DB.Query(sqlQuery, id)
+	if err != nil {
+		return
+	}
+
+	row.Next()
+	err = row.Scan(&thread.ID, &thread.Created, &thread.Slug, &thread.Message,
+		&thread.Title, &thread.Votes, &thread.Forum, &thread.Author)
+
+	return
+}
+
 func (db *Database) CreateThread(thread *models.Thread) (err error) {
 
 	if _, err = db.GetUserByName(thread.Author); err != nil {
@@ -49,4 +67,42 @@ func (db *Database) CreateThread(thread *models.Thread) (err error) {
 	t, _ := db.GetThreadBySlug(thread.Slug)
 	*thread = t
 	return errors.New("No Error")
+}
+
+func (db *Database) GetForumThreads(query models.URLQuery) (threads models.Threads, err error) {
+
+	sqlQuery := `SELECT id, title, author, forum, message, votes, slug, created
+				FROM threads t
+				WHERE forum=$1`
+
+	if query.Since != "" {
+		if query.Desc {
+			sqlQuery += ` AND t.created < ` + query.Since
+		} else {
+			sqlQuery += ` AND t.created > ` + query.Since
+		}
+	}
+	if query.Desc {
+		sqlQuery += ` ORDER BY 1 DESC`
+	} else {
+		sqlQuery += ` ORDER BY 1 ASC`
+	}
+
+	sqlQuery += ` LIMIT $2;`
+
+	rows, err := db.DB.Query(sqlQuery, query.Slug, query.Limit)
+	if err != nil {
+		return
+	}
+
+	for rows.Next() {
+		t := &models.Thread{}
+		if err = rows.Scan(&t.ID, &t.Title, &t.Author, &t.Forum,
+			&t.Message, &t.Votes, &t.Slug, &t.Created); err != nil {
+			return
+		}
+		threads = append(threads, t)
+	}
+	rows.Close()
+	return
 }

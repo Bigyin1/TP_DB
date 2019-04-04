@@ -12,3 +12,10 @@ type Post struct {
 	Parent   int64     `json:"parent,omitempty"`
 	Thread   int       `json:"thread,omitempty"`
 }
+
+type PostDetails struct {
+	Author *User   `json:"author,omitempty"`
+	Forum  *Forum  `json:"forum,omitempty"`
+	Post   *Post   `json:"post,omitempty"`
+	Thread *Thread `json:"thread,omitempty"`
+}

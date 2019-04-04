@@ -36,3 +36,26 @@ func (h *Handler) CreateThread(rw http.ResponseWriter, r *http.Request) {
 	}
 
 }
+
+func (h *Handler) ForumThreadList(rw http.ResponseWriter, r *http.Request) {
+
+	var (
+		threads models.Threads
+		err     error
+		query   models.URLQuery
+	)
+	query.Init(r)
+
+	if _, err = h.db.GetForumBySlug(query.Slug); err != nil {
+		message := models.Message{Message: "Forum not found"}
+		response(rw, http.StatusNotFound, message)
+		return
+	}
+
+	if threads, err = h.db.GetForumThreads(query); err != nil {
+		fmt.Printf("ForumUsers error: ", err.Error())
+		return
+	}
+	response(rw, http.StatusOK, threads)
+
+}

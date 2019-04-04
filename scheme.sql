@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS forums (
 CREATE TABLE IF NOT EXISTS threads (
   id        BIGSERIAL  PRIMARY KEY,
   author    CITEXT  NOT NULL  REFERENCES users(nickname),
-  created   TIMESTAMPTZ  NOT NULL,
+  created   TIMESTAMPTZ  NOT NULL DEFAULT transaction_timestamp(),
   forum     CITEXT  NOT NULL  REFERENCES forums(slug),
   message   TEXT  NOT NULL,
   slug      CITEXT  DEFAULT NULL UNIQUE,
@@ -48,8 +48,8 @@ CREATE TABLE IF NOT EXISTS posts (
   forum     CITEXT                      NOT NULL  REFERENCES forums(slug),
   is_edited BOOLEAN                     NOT NULL  DEFAULT FALSE,
   message   CITEXT                      NOT NULL,
-  parent    BIGINT DEFAULT 0            NOT NULL,
-  thread BIGINT                         NOT NULL
+  parent    BIGINT DEFAULT 0            NOT NULL ,
+  thread    BIGINT                      NOT NULL REFERENCES threads(id)
 );
 
 ----------------VOTES----------------

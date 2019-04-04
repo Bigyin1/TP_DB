@@ -1,7 +1,6 @@
 package db
 
 import (
-	"fmt"
 	"gohw/internal/models"
 )
 
@@ -73,7 +72,7 @@ func (db *Database) UpdateProfile(user *models.User) (err error) {
 	return
 }
 
-func (db *Database) GetUsersByForum(query models.ForumUsersQuery) (users models.Users, err error) {
+func (db *Database) GetUsersByForum(query models.URLQuery) (users models.Users, err error) {
 
 	sqlQuery := `SELECT DISTINCT u.nickname, u.fullname, u.about, u.email
 				FROM forums f
@@ -81,10 +80,12 @@ func (db *Database) GetUsersByForum(query models.ForumUsersQuery) (users models.
 				JOIN users u on t.author=u.nickname
 				WHERE f.slug like $1`
 
-	if query.Desc {
-		sqlQuery += ` AND u.nickname < $2`
-	} else {
-		sqlQuery += ` AND u.nickname > $2`
+	if query.Since != "" {
+		if query.Desc {
+			sqlQuery += ` AND u.nickname < ` + "'" + query.Since + "'"
+		} else {
+			sqlQuery += ` AND u.nickname > ` + "'" + query.Since + "'"
+		}
 	}
 	sqlQuery += ` UNION DISTINCT SELECT DISTINCT u.nickname, u.fullname, u.about, u.email
 	FROM forums f
@@ -92,10 +93,12 @@ func (db *Database) GetUsersByForum(query models.ForumUsersQuery) (users models.
 	JOIN users u on p.author=u.nickname
 	WHERE f.slug like $1`
 
-	if query.Desc {
-		sqlQuery += ` AND u.nickname < $2`
-	} else {
-		sqlQuery += ` AND u.nickname > $2`
+	if query.Since != "" {
+		if query.Desc {
+			sqlQuery += ` AND u.nickname < ` + "'" + query.Since + "'"
+		} else {
+			sqlQuery += ` AND u.nickname > ` + "'" + query.Since + "'"
+		}
 	}
 
 	if query.Desc {
@@ -104,10 +107,10 @@ func (db *Database) GetUsersByForum(query models.ForumUsersQuery) (users models.
 		sqlQuery += ` ORDER BY 1 ASC`
 	}
 
-	sqlQuery += ` LIMIT $3;`
+	sqlQuery += ` LIMIT $2;`
 
-	fmt.Println(sqlQuery)
-	rows, err := db.DB.Query(sqlQuery, query.Slug, query.Since, query.Limit)
+	//fmt.Println(sqlQuery)
+	rows, err := db.DB.Query(sqlQuery, query.Slug, query.Limit)
 	if err != nil {
 		return
 	}
