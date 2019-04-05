@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS threads (
   created   TIMESTAMPTZ  NOT NULL DEFAULT transaction_timestamp(),
   forum     CITEXT  NOT NULL  REFERENCES forums(slug),
   message   TEXT  NOT NULL,
-  slug      CITEXT  DEFAULT NULL,
+  slug      CITEXT  DEFAULT NULL UNIQUE,
   title     CITEXT  NOT NULL,
   votes     INT  NOT NULL  DEFAULT 0
 );
@@ -49,7 +49,9 @@ CREATE TABLE IF NOT EXISTS posts (
   is_edited BOOLEAN                     NOT NULL  DEFAULT FALSE,
   message   CITEXT                      NOT NULL,
   parent    BIGINT DEFAULT 0            NOT NULL ,
-  thread    BIGINT                      NOT NULL REFERENCES threads(id)
+  thread    BIGINT                      NOT NULL REFERENCES threads(id),
+  branch    BIGINT                      NOT NULL DEFAULT 0,
+  path      BIGINT[]
 );
 
 ----------------VOTES----------------
@@ -60,27 +62,38 @@ CREATE TABLE IF NOT EXISTS votes (
   PRIMARY KEY (nickname, thread)
 );
 
-
-CREATE TABLE IF NOT EXISTS forumusers (
-  nickname  CITEXT                          NOT NULL          REFERENCES users(nickname),
-  forum      CITEXT                          NOT NULL          REFERENCES forums(slug),
-  CONSTRAINT forumusers_pimaty_key PRIMARY KEY (nickname, forum)
-);
-
 CREATE OR REPLACE FUNCTION insertPost()
   RETURNS TRIGGER AS $$
+DECLARE 
+    parent_branch INT;
+    parent_path BIGINT[];
 BEGIN
   
   update forums f
   SET posts = posts + 1
   WHERE f.slug = NEW.forum;
 
-  RETURN NULL;
+  SELECT path, branch into parent_path, parent_branch
+  FROM posts
+  WHERE id = NEW.parent;
+  IF NEW.parent != 0 
+  THEN	
+    NEW.branch = parent_branch;
+  ELSE
+    NEW.branch = NEW.id;
+  END IF;
+  IF parent_path is null 
+  THEN
+    NEW.path =  NEW.path || cast(0 as BIGINT) || cast(NEW.id as BIGINT);
+  ELSE
+    NEW.path = parent_path || cast(NEW.id as BIGINT);
+  END IF;
+  RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER insertPost
-AFTER INSERT ON Posts
+BEFORE INSERT ON Posts
 FOR EACH ROW EXECUTE PROCEDURE insertPost();
 
 

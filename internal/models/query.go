@@ -12,6 +12,8 @@ type URLQuery struct {
 	Limit int
 	Since string
 	Desc  bool
+	Sort  string
+	ID    int
 }
 
 func (f *URLQuery) Init(r *http.Request) {
@@ -27,5 +29,9 @@ func (f *URLQuery) Init(r *http.Request) {
 		f.Desc = true
 	} else {
 		f.Desc = false
+	}
+	f.Sort = r.FormValue("sort")
+	if f.Sort == "" {
+		f.Sort = "flat"
 	}
 }

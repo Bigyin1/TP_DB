@@ -65,19 +65,19 @@ INSERT INTO posts(author, forum, message, parent, thread)
 	VALUES ('1', 'r', 'hi fillip', '0', '1');
 
 INSERT INTO posts(author, forum, message, parent, thread)
-	VALUES ('2', 'e', 'hi fillip', '0', '3');
+	VALUES ('2', 'e', 'hi fillip', '0', '1');
 
 INSERT INTO posts(author, forum, message, parent, thread)
-	VALUES ('1', 'r', 'hi fillip', '0', '1');
+	VALUES ('1', 'r', 'hi fillip', '1', '1');
 
 INSERT INTO posts(author, forum, message, parent, thread)
-	VALUES ('4', 'q', 'hi fillip', '0', '2');
+	VALUES ('4', 'q', 'hi fillip', '0', '1');
 
 INSERT INTO posts(author, forum, message, parent, thread)
-	VALUES ('3', 'w', 'hi fillip', '0', '4');
+	VALUES ('3', 'w', 'hi fillip', '0', '1');
 
 INSERT INTO posts(author, forum, message, parent, thread)
-	VALUES ('8', 'q', 'hi fillip', '0', '2');
+	VALUES ('8', 'q', 'hi fillip', '0', '1');
 
 INSERT INTO posts(author, forum, message, parent, thread)
-	VALUES ('7', 'w', 'hi fillip', '0', '5');
+	VALUES ('7', 'w', 'hi fillip', '0', '1');

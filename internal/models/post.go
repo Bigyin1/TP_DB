@@ -9,7 +9,7 @@ type Post struct {
 	Forum    string    `json:"forum,omitempty"`
 	IsEdited bool      `json:"isEdited"`
 	Message  string    `json:"message"`
-	Parent   int       `json:"parent,omitempty"`
+	Parent   int       `json:"parent"`
 	Thread   int       `json:"thread,omitempty"`
 }
 
