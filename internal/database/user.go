@@ -83,9 +83,9 @@ func (db *Database) GetUsersByForum(query models.URLQuery) (users models.Users, 
 
 	if query.Since != "" {
 		if query.Desc {
-			sqlQuery += ` AND u.nickname < ` + "'" + query.Since + "'"
+			sqlQuery += fmt.Sprintf(" AND lower(u.nickname) > lower('%s')", query.Since)
 		} else {
-			sqlQuery += ` AND u.nickname > ` + "'" + query.Since + "'"
+			sqlQuery += fmt.Sprintf(" AND lower(u.nickname) < lower('%s')", query.Since)
 		}
 	}
 	sqlQuery += ` UNION DISTINCT SELECT DISTINCT u.nickname, u.fullname, u.about, u.email
@@ -96,9 +96,9 @@ func (db *Database) GetUsersByForum(query models.URLQuery) (users models.Users, 
 
 	if query.Since != "" {
 		if query.Desc {
-			sqlQuery += ` AND u.nickname < ` + "'" + query.Since + "'"
+			sqlQuery += fmt.Sprintf(" AND lower(u.nickname)< lower('%s')", query.Since)
 		} else {
-			sqlQuery += ` AND u.nickname > ` + "'" + query.Since + "'"
+			sqlQuery += fmt.Sprintf(" AND lower(u.nickname) > lower('%s')", query.Since)
 		}
 	}
 
@@ -110,7 +110,6 @@ func (db *Database) GetUsersByForum(query models.URLQuery) (users models.Users, 
 
 	sqlQuery += ` LIMIT $2;`
 
-	//fmt.Println(sqlQuery)
 	rows, err := db.DB.Query(sqlQuery, query.Slug, query.Limit)
 	if err != nil {
 		return

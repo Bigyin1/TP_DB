@@ -101,7 +101,7 @@ func (h *Handler) ForumUsers(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if users, err = h.db.GetUsersByForum(query); err != nil {
-		fmt.Printf("ForumUsers error: ", err.Error())
+		fmt.Printf("ForumUsers error: %s\n", err.Error())
 		return
 	}
 	response(rw, http.StatusOK, users)

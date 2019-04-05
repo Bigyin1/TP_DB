@@ -101,7 +101,6 @@ func (h *Handler) PostUpdate(rw http.ResponseWriter, r *http.Request) {
 func (h *Handler) CreatePosts(rw http.ResponseWriter, r *http.Request) {
 
 	var (
-		//post   models.Post
 		posts  models.Posts
 		thread models.Thread
 		err    error

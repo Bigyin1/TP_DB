@@ -80,9 +80,9 @@ func (db *Database) GetForumThreads(query models.URLQuery) (threads models.Threa
 
 	if query.Since != "" {
 		if query.Desc {
-			sqlQuery += ` AND t.created < ` + query.Since
+			sqlQuery += fmt.Sprintf(" AND u.nickname < '%s'", query.Since)
 		} else {
-			sqlQuery += ` AND t.created > ` + query.Since
+			sqlQuery += fmt.Sprintf(" AND u.nickname > '%s'", query.Since)
 		}
 	}
 	if query.Desc {
