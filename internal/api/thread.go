@@ -24,7 +24,7 @@ func (h *Handler) CreateThread(rw http.ResponseWriter, r *http.Request) {
 	}
 	r.Body.Close()
 
-	thread.Slug = mux.Vars(r)["slug"]
+	thread.Forum = mux.Vars(r)["slug"]
 	switch err = h.db.CreateThread(&thread); err.Error() {
 	case rerrors.UserNotFound:
 		message := models.Message{Message: "Can't find user or forum"}

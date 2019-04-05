@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS threads (
   created   TIMESTAMPTZ  NOT NULL DEFAULT transaction_timestamp(),
   forum     CITEXT  NOT NULL  REFERENCES forums(slug),
   message   TEXT  NOT NULL,
-  slug      CITEXT  DEFAULT NULL UNIQUE,
+  slug      CITEXT  DEFAULT NULL,
   title     CITEXT  NOT NULL,
   votes     INT  NOT NULL  DEFAULT 0
 );
@@ -66,3 +66,36 @@ CREATE TABLE IF NOT EXISTS forumusers (
   forum      CITEXT                          NOT NULL          REFERENCES forums(slug),
   CONSTRAINT forumusers_pimaty_key PRIMARY KEY (nickname, forum)
 );
+
+CREATE OR REPLACE FUNCTION insertPost()
+  RETURNS TRIGGER AS $$
+BEGIN
+  
+  update forums f
+  SET posts = posts + 1
+  WHERE f.slug = NEW.forum;
+
+  RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER insertPost
+AFTER INSERT ON Posts
+FOR EACH ROW EXECUTE PROCEDURE insertPost();
+
+
+CREATE OR REPLACE FUNCTION insertThread()
+  RETURNS TRIGGER AS $$
+BEGIN
+  
+  update forums f
+  SET threads = threads + 1
+  WHERE f.slug = NEW.forum;
+
+  RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER insertThread
+AFTER INSERT ON threads
+FOR EACH ROW EXECUTE PROCEDURE insertThread();

@@ -45,10 +45,13 @@ func (db *Database) GetThreadByID(id int) (thread models.Thread, err error) {
 
 func (db *Database) CreateThread(thread *models.Thread) (err error) {
 
+	fmt.Println(thread.Author, thread.Forum)
 	if _, err = db.GetUserByName(thread.Author); err != nil {
+		fmt.Println(err.Error())
 		return errors.New(rerrors.UserNotFound)
 	}
 	if _, err = db.GetForumBySlug(thread.Forum); err != nil {
+		fmt.Println(err.Error())
 		return errors.New(rerrors.UserNotFound)
 	}
 
