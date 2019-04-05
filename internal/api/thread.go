@@ -6,6 +6,7 @@ import (
 	"gohw/internal/models"
 	rerrors "gohw/internal/return_errors"
 	"net/http"
+	"strconv"
 
 	"github.com/gorilla/mux"
 )
@@ -18,7 +19,7 @@ func (h *Handler) CreateThread(rw http.ResponseWriter, r *http.Request) {
 	)
 
 	if err = json.NewDecoder(r.Body).Decode(&thread); err != nil {
-		fmt.Printf("CreateForum error: %s at %s\n", err.Error(), r.URL)
+		fmt.Printf("CreateThread error: %s at %s\n", err.Error(), r.URL)
 		response(rw, http.StatusBadRequest, nil)
 		return
 	}
@@ -58,4 +59,64 @@ func (h *Handler) ForumThreadList(rw http.ResponseWriter, r *http.Request) {
 	}
 	response(rw, http.StatusOK, threads)
 
+}
+
+func (h *Handler) ThreadDetails(rw http.ResponseWriter, r *http.Request) {
+
+	var (
+		thread models.Thread
+	)
+
+	if id, err := strconv.Atoi(mux.Vars(r)["slug_or_id"]); err != nil {
+		if thread, err = h.db.GetThreadBySlug(mux.Vars(r)["slug_or_id"]); err != nil {
+			message := models.Message{Message: "Can't find thread"}
+			response(rw, http.StatusNotFound, message)
+			return
+		}
+	} else {
+		if thread, err = h.db.GetThreadByID(id); err != nil {
+			message := models.Message{Message: "Can't find thread"}
+			response(rw, http.StatusNotFound, message)
+			return
+		}
+	}
+
+	response(rw, http.StatusOK, thread)
+}
+
+func (h *Handler) ThreadUpdate(rw http.ResponseWriter, r *http.Request) {
+
+	var (
+		thread models.Thread
+		upd    models.Thread
+		err    error
+	)
+
+	if id, err := strconv.Atoi(mux.Vars(r)["slug_or_id"]); err != nil {
+		if thread, err = h.db.GetThreadBySlug(mux.Vars(r)["slug_or_id"]); err != nil {
+			message := models.Message{Message: "Can't find thread"}
+			response(rw, http.StatusNotFound, message)
+			return
+		}
+	} else {
+		if thread, err = h.db.GetThreadByID(id); err != nil {
+			message := models.Message{Message: "Can't find thread"}
+			response(rw, http.StatusNotFound, message)
+			return
+		}
+	}
+
+	if err = json.NewDecoder(r.Body).Decode(&upd); err != nil {
+		fmt.Printf("ThreadUpdate error: %s at %s\n", err.Error(), r.URL)
+		response(rw, http.StatusBadRequest, nil)
+		return
+	}
+	r.Body.Close()
+
+	if err = h.db.UpdateThread(&thread, &upd); err != nil {
+		fmt.Printf("ThreadUpdate error: %s", err.Error())
+		return
+	}
+
+	response(rw, http.StatusOK, thread)
 }

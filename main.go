@@ -31,9 +31,9 @@ func main() {
 	v.HandleFunc("/forum/{slug}/threads", API.ForumThreadList).Methods("GET")
 	v.HandleFunc("/thread/{slug_or_id}/create", API.CreatePosts).Methods("POST")
 	// v.HandleFunc("thread/{slug_or_id}/vote", thread.Vote).Methods("POST")
-	// v.HandleFunc("thread/{slug_or_id}/details", thread.ThreadInfo).Methods("GET")
+	v.HandleFunc("/thread/{slug_or_id}/details", API.ThreadDetails).Methods("GET")
 	// v.HandleFunc("thread/{slug_or_id}/posts", thread.SortPosts).Methods("GET")
-	// v.HandleFunc("thread/{slug_or_id}/details", thread.UpdateThread).Methods("POST")
+	v.HandleFunc("/thread/{slug_or_id}/details", API.ThreadUpdate).Methods("POST")
 
 	v.HandleFunc("/post/{id}/details", API.PostDetails).Methods("GET")
 	v.HandleFunc("/post/{id}/details", API.PostUpdate).Methods("POST")
