@@ -125,21 +125,16 @@ func (db *Database) CountThreads() (count int, err error) {
 func (db *Database) UpdateThread(old *models.Thread, new *models.Thread) (err error) {
 
 	sqlQuery := `UPDATE threads
-				SET title = $1,
-					message = $2;`
+				SET title    = COALESCE(NULLIF($1, ''), title),
+				message    = COALESCE(NULLIF($2, ''), message)
+				WHERE id = $3
+				RETURNING title, message;`
 
-	if new.Title == "" {
-		new.Title = old.Title
-	} else {
-		old.Title = new.Title
-	}
-	if new.Message == "" {
-		new.Message = old.Message
-	} else {
-		old.Message = new.Message
-	}
+	row := db.DB.QueryRow(sqlQuery, new.Title, new.Message, old.ID)
 
-	_, err = db.DB.Exec(sqlQuery, new.Title, new.Message)
+	if err = row.Scan(&old.Title, &old.Message); err != nil {
+		fmt.Printf("UpdateThreads error: %s\n", err.Error())
+	}
 
 	return
 }
