@@ -1,25 +1,49 @@
 package db
 
 import (
+	"database/sql"
 	"fmt"
 	"gohw/internal/models"
 )
 
 func (db *Database) InsertNewUser(user *models.User) (err error) {
 
+	var tx *sql.Tx
+	tx, err = db.DB.Begin()
+	defer tx.Rollback()
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+	fmt.Println("InsertNewUser start")
 	sqlInsert := `INSERT INTO users(nickname, fullname, about, email)
 	VALUES ( $1, $2, $3, $4 );`
-	_, err = db.DB.Exec(sqlInsert, user.Nickname, user.Fullname, user.About, user.Email)
-
+	if _, err = tx.Exec(sqlInsert, user.Nickname, user.Fullname, user.About, user.Email); err != nil {
+		return
+	}
+	err = tx.Commit()
+	if err != nil {
+		return
+	}
 	return
 }
 
 func (db *Database) GetAllCollisionUsers(user *models.User) (usrs models.Users, err error) {
+	var tx *sql.Tx
+	tx, err = db.DB.Begin()
+	defer tx.Rollback()
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+	fmt.Println("GetAllCollisionUsers start")
 	sqlQuery := `SELECT nickname, fullname, about, email
 				FROM users u
 				WHERE u.nickname=$1 OR u.email=$2;`
-	rows, err := db.DB.Query(sqlQuery, user.Nickname, user.Email)
+	rows, err := tx.Query(sqlQuery, user.Nickname, user.Email)
+
 	if err != nil {
+		fmt.Println(err.Error())
 		return
 	}
 
@@ -36,19 +60,30 @@ func (db *Database) GetAllCollisionUsers(user *models.User) (usrs models.Users, 
 
 func (db *Database) GetUserByName(name string) (user models.User, err error) {
 
-	sqlQuery := `SELECT nickname, fullname, about, email
-				FROM users u
-				WHERE nickname=$1;`
-
-	row, err := db.DB.Query(sqlQuery, name)
+	fmt.Printf("GetUserByName start, username: %s\n", name)
+	var tx *sql.Tx
+	tx, err = db.DB.Begin()
+	defer tx.Rollback()
 	if err != nil {
+		fmt.Println(err.Error())
 		return
 	}
 
-	row.Next()
+	sqlQuery := `SELECT nickname, fullname, about, email
+				FROM users
+				WHERE lower(nickname) like lower($1);`
+
+	row := tx.QueryRow(sqlQuery, name)
+	fmt.Printf("GetUserByName query done\n")
 	if err = row.Scan(&user.Nickname, &user.Fullname, &user.About, &user.Email); err != nil {
+		fmt.Printf("GetUserByName error: %s\n", err.Error())
 		return
 	}
+	// err = tx.Commit()
+	// if err != nil {
+	// 	return
+	// }
+	fmt.Printf("GetUserByName end\n")
 	return
 }
 
@@ -114,7 +149,7 @@ func (db *Database) GetUsersByForum(query models.URLQuery) (users models.Users, 
 	if err != nil {
 		return
 	}
-
+	users = make(models.Users, 0)
 	for rows.Next() {
 		u := &models.User{}
 		if err = rows.Scan(&u.Nickname, &u.Fullname, &u.About, &u.Email); err != nil {

@@ -2,16 +2,24 @@ package db
 
 import (
 	"database/sql"
+	"fmt"
 	"gohw/internal/models"
 )
 
 func (db *Database) InsertOrUpdateVote(vote models.Vote, thread *models.Thread) (err error) {
 
+	var tx *sql.Tx
+	tx, err = db.DB.Begin()
+	defer tx.Rollback()
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
 	sqlQuery := `SELECT voice
 				FROM votes
 				WHERE nickname=$1 and thread=$2`
 
-	row := db.DB.QueryRow(sqlQuery, vote.Nickname, thread.ID)
+	row := tx.QueryRow(sqlQuery, vote.Nickname, thread.ID)
 
 	oldVoice := 0
 	if err = row.Scan(&oldVoice); err != nil && err != sql.ErrNoRows {
@@ -21,14 +29,14 @@ func (db *Database) InsertOrUpdateVote(vote models.Vote, thread *models.Thread) 
 	if err == sql.ErrNoRows {
 		sqlQuery := `INSERT INTO votes(nickname, voice, thread)
 					VALUES($1, $2, $3);`
-		if _, err = db.DB.Exec(sqlQuery, vote.Nickname, vote.Voice, thread.ID); err != nil {
+		if _, err = tx.Exec(sqlQuery, vote.Nickname, vote.Voice, thread.ID); err != nil {
 			return
 		}
 	} else {
 		sqlQuery := `UPDATE votes
 					SET voice = $1
 					WHERE nickname = $2 AND thread = $3;`
-		if _, err = db.DB.Exec(sqlQuery, vote.Voice, vote.Nickname, thread.ID); err != nil {
+		if _, err = tx.Exec(sqlQuery, vote.Voice, vote.Nickname, thread.ID); err != nil {
 			return
 		}
 	}
@@ -37,8 +45,9 @@ func (db *Database) InsertOrUpdateVote(vote models.Vote, thread *models.Thread) 
 	sqlUpdate := `UPDATE threads
 				SET votes = $1
 				WHERE id = $2;`
-	if _, err = db.DB.Exec(sqlUpdate, thread.Votes, thread.ID); err != nil {
+	if _, err = tx.Exec(sqlUpdate, thread.Votes, thread.ID); err != nil {
 		return
 	}
+	tx.Commit()
 	return
 }

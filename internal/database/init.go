@@ -21,14 +21,12 @@ func Init() (db *Database, err error) {
 	dbCredentials := "user=docker password=docker dbname=docker sslmode=disable"
 
 	if db.DB, err = sql.Open("postgres", dbCredentials); err != nil {
-		fmt.Println("db/Init cant open:" + err.Error())
+		fmt.Println("db Init cant open:" + err.Error())
 		return
 	}
 
-	db.DB.SetMaxOpenConns(50)
-
 	if err = db.DB.Ping(); err != nil {
-		fmt.Println("db/Init cant access:" + err.Error())
+		fmt.Println("db Init cant access:" + err.Error())
 		return
 	}
 
@@ -39,17 +37,7 @@ func Init() (db *Database, err error) {
 
 	_, err = db.DB.Exec(string(query))
 	if err != nil {
-		fmt.Println("database/init - fail:" + err.Error())
-	}
-
-	query, err = ioutil.ReadFile("init.sql")
-	if err != nil {
-		panic(err)
-	}
-
-	_, err = db.DB.Exec(string(query))
-	if err != nil {
-		fmt.Println("database/init - fail:" + err.Error())
+		fmt.Println("database init - fail:" + err.Error())
 	}
 
 	return

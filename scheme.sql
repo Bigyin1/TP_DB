@@ -5,12 +5,12 @@ DROP TABLE IF EXISTS forums CASCADE;
 DROP TABLE IF EXISTS threads CASCADE;
 DROP TABLE IF EXISTS posts CASCADE;
 DROP TABLE IF EXISTS votes CASCADE;
-DROP TABLE IF EXISTS forumusers CASCADE;
+
 
 
 ----------------USERS----------------
 CREATE TABLE IF NOT EXISTS users (
-  nickname CITEXT  COLLATE ucs_basic  NOT NULL  PRIMARY KEY,
+  nickname CITEXT NOT NULL PRIMARY KEY COLLATE "C",
   fullname CITEXT                     NOT NULL,
   email    CITEXT                     NOT NULL UNIQUE,
   about    TEXT
@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS forums (
   posts   INT  NOT NULL  DEFAULT 0,
   slug    CITEXT  NOT NULL  UNIQUE,
   threads INT   NOT NULL  DEFAULT 0,
-  title   CITEXT  NOT NULL,
+  title   varchar(100)  NOT NULL,
   owner CITEXT  NOT NULL  REFERENCES users(nickname)
 );
 
@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS forums (
 CREATE TABLE IF NOT EXISTS threads (
   id        BIGSERIAL  PRIMARY KEY,
   author    CITEXT  NOT NULL  REFERENCES users(nickname),
-  created   TIMESTAMPTZ  NOT NULL DEFAULT transaction_timestamp(),
+  created   TIMESTAMPTZ  NOT NULL DEFAULT (NOW() AT TIME ZONE 'UTC'),
   forum     CITEXT  NOT NULL  REFERENCES forums(slug),
   message   TEXT  NOT NULL,
   slug      CITEXT  DEFAULT NULL UNIQUE,
@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS threads (
 CREATE TABLE IF NOT EXISTS posts (
   id        BIGSERIAL                             PRIMARY KEY,
   author    CITEXT                      NOT NULL  REFERENCES users(nickname),
-  created   TIMESTAMPTZ                 NOT NULL  DEFAULT transaction_timestamp(),
+  created   TIMESTAMPTZ                 NOT NULL  DEFAULT (NOW() AT TIME ZONE 'UTC'),
   forum     CITEXT                      NOT NULL  REFERENCES forums(slug),
   is_edited BOOLEAN                     NOT NULL  DEFAULT FALSE,
   message   CITEXT                      NOT NULL,

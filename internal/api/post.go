@@ -13,6 +13,8 @@ import (
 )
 
 func (h *Handler) PostDetails(rw http.ResponseWriter, r *http.Request) {
+
+	fmt.Println("PostDetails start")
 	var (
 		details models.PostDetails
 		post    models.Post
@@ -65,11 +67,11 @@ func (h *Handler) PostDetails(rw http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) PostUpdate(rw http.ResponseWriter, r *http.Request) {
 
+	fmt.Println("PostUpdate start")
 	var (
-		post     models.Post
-		message  models.Message
-		isEdited bool
-		err      error
+		post    models.Post
+		message models.Message
+		err     error
 	)
 
 	id, _ := strconv.Atoi(mux.Vars(r)["id"])
@@ -77,20 +79,23 @@ func (h *Handler) PostUpdate(rw http.ResponseWriter, r *http.Request) {
 	if post, err = h.db.GetPostByID(id); err != nil {
 		message = models.Message{Message: "Can't find post"}
 		response(rw, http.StatusNotFound, message)
+		return
 	}
 
 	if err = json.NewDecoder(r.Body).Decode(&message); err != nil {
-		fmt.Printf("PostChange error: %s at %s\n", err.Error(), r.URL)
+		fmt.Printf("PostUpdate error: %s at %s\n", err.Error(), r.URL)
 		response(rw, http.StatusBadRequest, nil)
 		return
 	}
-	if post.Message != message.Message {
-		isEdited = true
+	if message.Message != "" && post.Message != message.Message {
+		post.Message = message.Message
+		post.IsEdited = true
+	} else {
+		response(rw, http.StatusOK, post)
+		return
 	}
-	post.Message = message.Message
-	post.IsEdited = isEdited
 	if err = h.db.UpdatePost(&post); err != nil {
-		fmt.Printf("%s\n", err.Error())
+		fmt.Printf("UpdatePost error: %s\n", err.Error())
 		message = models.Message{Message: "Crash"}
 		response(rw, 500, message)
 		return
@@ -100,6 +105,7 @@ func (h *Handler) PostUpdate(rw http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) CreatePosts(rw http.ResponseWriter, r *http.Request) {
 
+	fmt.Println("CreatePosts start")
 	var (
 		posts  models.Posts
 		thread models.Thread
@@ -141,7 +147,7 @@ func (h *Handler) CreatePosts(rw http.ResponseWriter, r *http.Request) {
 		}
 		if _, err = h.db.GetUserByName(post.Author); err != nil {
 			message := models.Message{Message: "Can't find author for new post: " + post.Author}
-			response(rw, http.StatusConflict, message)
+			response(rw, http.StatusNotFound, message)
 			return
 		}
 		if err = h.db.CreatePost(post); err != nil {

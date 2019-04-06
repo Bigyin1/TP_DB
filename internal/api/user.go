@@ -15,6 +15,7 @@ func (h *Handler) CreateUser(rw http.ResponseWriter, r *http.Request) {
 		user models.User
 		err  error
 	)
+	fmt.Println("CreateUser start")
 	if err = json.NewDecoder(r.Body).Decode(&user); err != nil {
 		fmt.Printf("CreateUser error: %s at %s\n", err.Error(), r.URL)
 		response(rw, http.StatusBadRequest, nil)
@@ -23,6 +24,7 @@ func (h *Handler) CreateUser(rw http.ResponseWriter, r *http.Request) {
 	r.Body.Close()
 	user.Nickname = mux.Vars(r)["name"]
 
+	fmt.Println(user.Nickname)
 	if err = h.db.InsertNewUser(&user); err != nil {
 		fmt.Printf("CreateUser error: %s at %s\n", err.Error(), r.URL)
 		users, err := h.db.GetAllCollisionUsers(&user)
@@ -39,6 +41,7 @@ func (h *Handler) CreateUser(rw http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) ProfileUser(rw http.ResponseWriter, r *http.Request) {
 
+	fmt.Println("ProfileUser start")
 	var (
 		user models.User
 		err  error
@@ -56,6 +59,7 @@ func (h *Handler) ProfileUser(rw http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) UpdateUser(rw http.ResponseWriter, r *http.Request) {
 
+	fmt.Println("UpdateUser start")
 	var (
 		user models.User
 		err  error
@@ -72,7 +76,7 @@ func (h *Handler) UpdateUser(rw http.ResponseWriter, r *http.Request) {
 	if _, err = h.db.GetUserByName(user.Nickname); err != nil {
 		fmt.Printf("UpdateUser error: %s at %s\n", err.Error(), r.URL)
 		message := models.Message{Message: "Can't find user by nickname: " + user.Nickname}
-		response(rw, http.StatusBadRequest, message)
+		response(rw, http.StatusNotFound, message)
 		return
 	}
 
@@ -88,6 +92,7 @@ func (h *Handler) UpdateUser(rw http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) ForumUsers(rw http.ResponseWriter, r *http.Request) {
 
+	fmt.Println("ForumUsers start")
 	var (
 		users models.Users
 		err   error

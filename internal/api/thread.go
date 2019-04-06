@@ -13,6 +13,7 @@ import (
 
 func (h *Handler) CreateThread(rw http.ResponseWriter, r *http.Request) {
 
+	fmt.Println("CreateThreadstart")
 	var (
 		thread models.Thread
 		err    error
@@ -40,6 +41,7 @@ func (h *Handler) CreateThread(rw http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) ForumThreadList(rw http.ResponseWriter, r *http.Request) {
 
+	fmt.Println("ForumThreadList start")
 	var (
 		threads models.Threads
 		err     error
@@ -63,6 +65,7 @@ func (h *Handler) ForumThreadList(rw http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) ThreadDetails(rw http.ResponseWriter, r *http.Request) {
 
+	fmt.Println("ThreadDetails start")
 	var (
 		thread models.Thread
 	)
@@ -86,6 +89,7 @@ func (h *Handler) ThreadDetails(rw http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) ThreadUpdate(rw http.ResponseWriter, r *http.Request) {
 
+	fmt.Println("ThreadUpdate start")
 	var (
 		thread models.Thread
 		upd    models.Thread
@@ -123,6 +127,7 @@ func (h *Handler) ThreadUpdate(rw http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) ThreadPosts(rw http.ResponseWriter, r *http.Request) {
 
+	fmt.Println("ThreadPosts start")
 	var (
 		posts  models.Posts
 		query  models.URLQuery
@@ -154,6 +159,7 @@ func (h *Handler) ThreadPosts(rw http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) ThreadVote(rw http.ResponseWriter, r *http.Request) {
 
+	fmt.Println("ThreadVote start")
 	var (
 		voice  models.Vote
 		thread models.Thread
