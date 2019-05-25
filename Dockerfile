@@ -38,10 +38,10 @@ RUN echo "host all  all    0.0.0.0/0  md5" >> /etc/postgresql/$PGSQLVER/main/pg_
 
 USER root
 
-COPY go.mod .
-COPY go.sum .
-RUN go mod download
+# COPY go.mod .
+# COPY go.sum .
+# RUN go mod download
 COPY . .
-RUN go build -o bin/api main.go
+#RUN go build -o bin/api main.go
 
-CMD service postgresql start && ./bin/api
+CMD service postgresql start && go run main.go
