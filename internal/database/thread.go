@@ -11,6 +11,7 @@ import (
 func (db *Database) GetThreadBySlug(slug string) (thread models.Thread, err error) {
 
 	var tx *sql.Tx
+	var slugBuf sql.NullString
 	tx, err = db.DB.Begin()
 	defer tx.Rollback()
 	if err != nil {
@@ -28,8 +29,9 @@ func (db *Database) GetThreadBySlug(slug string) (thread models.Thread, err erro
 	}
 
 	row.Next()
-	err = row.Scan(&thread.ID, &thread.Created, &thread.Slug, &thread.Message,
+	err = row.Scan(&thread.ID, &thread.Created, &slugBuf, &thread.Message,
 		&thread.Title, &thread.Votes, &thread.Forum, &thread.Author)
+	thread.Slug = slugBuf.String
 
 	return
 }
@@ -37,6 +39,7 @@ func (db *Database) GetThreadBySlug(slug string) (thread models.Thread, err erro
 func (db *Database) GetThreadByID(id int) (thread models.Thread, err error) {
 
 	var tx *sql.Tx
+	var slugBuf sql.NullString
 	tx, err = db.DB.Begin()
 	defer tx.Rollback()
 	if err != nil {
@@ -50,13 +53,17 @@ func (db *Database) GetThreadByID(id int) (thread models.Thread, err error) {
 
 	row, err := tx.Query(sqlQuery, id)
 	if err != nil {
+		fmt.Println("GetThreadByID ", err.Error())
 		return
 	}
 
 	row.Next()
-	err = row.Scan(&thread.ID, &thread.Created, &thread.Slug, &thread.Message,
+	err = row.Scan(&thread.ID, &thread.Created, &slugBuf, &thread.Message,
 		&thread.Title, &thread.Votes, &thread.Forum, &thread.Author)
-
+	thread.Slug = slugBuf.String
+	if err != nil {
+		fmt.Println("GetThreadByID ", err.Error())
+	}
 	return
 }
 

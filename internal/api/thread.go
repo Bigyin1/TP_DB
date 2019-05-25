@@ -165,8 +165,8 @@ func (h *Handler) ThreadVote(rw http.ResponseWriter, r *http.Request) {
 		thread models.Thread
 		err    error
 	)
-
-	if id, err := strconv.Atoi(mux.Vars(r)["slug_or_id"]); err != nil {
+	id, err := strconv.Atoi(mux.Vars(r)["slug_or_id"])
+	if err != nil {
 		if thread, err = h.db.GetThreadBySlug(mux.Vars(r)["slug_or_id"]); err != nil {
 			message := models.Message{Message: "Can't find thread"}
 			response(rw, http.StatusNotFound, message)
