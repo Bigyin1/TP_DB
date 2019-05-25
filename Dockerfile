@@ -18,9 +18,6 @@ ENV GOPATH /opt/go
 ENV PATH $GOROOT/bin:$GOPATH/bin:/usr/local/go/bin:$PATH
 
 WORKDIR /db-forum
-COPY . .
-
-EXPOSE 3000
 
 USER postgres
 
@@ -39,8 +36,12 @@ RUN echo "host all  all    0.0.0.0/0  md5" >> /etc/postgresql/$PGSQLVER/main/pg_
 	echo "wal_level = minimal" >> /etc/postgresql/$PGSQLVER/main/postgresql.conf &&\
 	echo "max_wal_senders = 0" >> /etc/postgresql/$PGSQLVER/main/postgresql.conf
 
-EXPOSE 5432
-
 USER root
 
-CMD service postgresql start && go run main.go
+COPY go.mod .
+COPY go.sum .
+RUN go mod download
+COPY . .
+RUN go build -o bin/api main.go
+
+CMD service postgresql start && ./bin/api

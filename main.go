@@ -41,7 +41,7 @@ func main() {
 	v.HandleFunc("/service/clear", API.ServiceClear).Methods("POST")
 	v.HandleFunc("/service/status", API.ServiceInfo).Methods("GET")
 
-	fmt.Println("Running on port 3000")
+	fmt.Println("Running on port 5000")
 	if err = http.ListenAndServe(":5000", r); err != nil {
 		fmt.Println("oh, this is error:" + err.Error())
 	}
