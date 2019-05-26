@@ -12,6 +12,8 @@ CASCADE;
 DROP TABLE IF EXISTS votes
 CASCADE;
 
+DROP TABLE IF EXISTS UsersForum cascade;
+
 DROP INDEX IF EXISTS idx_user_email;
 DROP INDEX IF EXISTS idx_thread_slug;
 DROP INDEX IF EXISTS idx_thread_forum;
@@ -23,6 +25,10 @@ DROP INDEX IF EXISTS idx_user_nickname_email;
 DROP INDEX IF EXISTS idx_post_branch;
 DROP INDEX IF EXISTS idx_post_thread_parent;
 DROP INDEX IF EXISTS idx_thread_created;
+DROP INDEX IF EXISTS idx_usersForum;
+DROP INDEX IF EXISTS idx_usersForum_forum;
+DROP INDEX IF EXISTS idx_usersForum_name;
+
 
 
 
@@ -60,8 +66,7 @@ IF NOT EXISTS threads
   author    CITEXT  NOT NULL  REFERENCES users
 (nickname),
   created   TIMESTAMPTZ  NOT NULL DEFAULT (NOW () AT TIME ZONE 'UTC'),
-  forum     CITEXT  NOT NULL  REFERENCES forums
-(slug),
+  forum     CITEXT  NOT NULL  REFERENCES forums (slug),
   message   TEXT  NOT NULL,
   slug      CITEXT  DEFAULT NULL UNIQUE,
   title     CITEXT  NOT NULL,
@@ -81,8 +86,7 @@ IF NOT EXISTS posts
   author    CITEXT                      NOT NULL  REFERENCES users
 (nickname),
   created   TIMESTAMPTZ                 NOT NULL  DEFAULT (NOW() AT TIME ZONE 'UTC'),
-  forum     CITEXT                      NOT NULL  REFERENCES forums
-(slug),
+  forum     CITEXT                      NOT NULL  REFERENCES forums (slug),
   is_edited BOOLEAN                     NOT NULL  DEFAULT FALSE,
   message   CITEXT                      NOT NULL,
   parent    BIGINT DEFAULT 0            NOT NULL ,
@@ -110,7 +114,17 @@ IF NOT EXISTS votes
   PRIMARY KEY (nickname, thread)
 );
 
-CREATE UNIQUE INDEX IF NOT EXISTS idx_vote_nickname_threadId ON votes USING btree (nickname, thread);
+CREATE INDEX IF NOT EXISTS idx_vote_nickname_threadId ON votes USING btree (nickname, thread);
+
+CREATE TABLE IF NOT EXISTS UsersForum (
+  forum  CITEXT NOT NULL,
+  userNickname  CITEXT NOT NULL,
+  PRIMARY KEY (forum, userNickname)
+);
+
+CREATE INDEX IF NOT EXISTS idx_usersForum ON UsersForum USING btree (userNickname COLLATE "C", forum);
+CREATE INDEX IF NOT EXISTS idx_usersForum_forum ON UsersForum USING btree (forum);
+CREATE INDEX IF NOT EXISTS idx_usersForum_name ON UsersForum USING btree (userNickname COLLATE "C");
 
 CREATE OR REPLACE FUNCTION insertPost
 ()

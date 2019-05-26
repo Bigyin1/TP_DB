@@ -132,6 +132,9 @@ func (h *Handler) CreatePosts(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	tx, err := h.db.DB.Begin()
+	defer tx.Rollback()
+
 	created := time.Now()
 	for _, post := range posts {
 		post.Created = created
@@ -150,10 +153,11 @@ func (h *Handler) CreatePosts(rw http.ResponseWriter, r *http.Request) {
 			response(rw, http.StatusNotFound, message)
 			return
 		}
-		if err = h.db.CreatePost(post); err != nil {
+		if err = h.db.CreatePost(post, tx); err != nil {
 			response(rw, http.StatusInternalServerError, nil)
 			return
 		}
 	}
+	err = tx.Commit()
 	response(rw, http.StatusCreated, posts)
 }

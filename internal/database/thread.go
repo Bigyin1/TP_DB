@@ -120,6 +120,12 @@ func (db *Database) CreateThread(thread *models.Thread) (err error) {
 		}
 	}
 
+	sqlForumUsers := `INSERT INTO UsersForum(forum, userNickname) VALUES ($1, $2) ON CONFLICT (forum, userNickname) DO NOTHING;`
+	_, err = tx.Exec(sqlForumUsers, thread.Forum, thread.Author)
+	if err != nil {
+		fmt.Printf("CreatePost error: %s\n", err.Error())
+	}
+
 	err = tx.Commit()
 	if err != nil {
 		return

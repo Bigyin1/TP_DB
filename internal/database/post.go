@@ -63,11 +63,8 @@ func (db *Database) CountPosts() (count int, err error) {
 	return
 }
 
-func (db *Database) CreatePost(post *models.Post) (err error) {
+func (db *Database) CreatePost(post *models.Post, tx *sql.Tx) (err error) {
 
-	var tx *sql.Tx
-	tx, err = db.DB.Begin()
-	defer tx.Rollback()
 	if err != nil {
 		fmt.Println(err.Error())
 		return
@@ -78,9 +75,18 @@ func (db *Database) CreatePost(post *models.Post) (err error) {
 
 	row := tx.QueryRow(sqlQuery, post.Author, post.Forum, post.Message, post.Parent, post.Thread, post.Created)
 
+	sqlForumUsers := `INSERT INTO UsersForum(forum, userNickname)
+					 VALUES ($1, $2)
+					 ON CONFLICT (forum, userNickname) DO NOTHING;`
+
 	if err = row.Scan(&post.ID); err != nil {
 		fmt.Printf("CreatePost error: %s", err.Error())
+		return
 	}
-	err = tx.Commit()
+
+	_, err = tx.Exec(sqlForumUsers, post.Forum, post.Author)
+	if err != nil {
+		fmt.Printf("CreatePost error: %s\n", err.Error())
+	}
 	return
 }

@@ -110,24 +110,10 @@ func (db *Database) UpdateProfile(user *models.User) (err error) {
 
 func (db *Database) GetUsersByForum(query models.URLQuery) (users models.Users, err error) {
 
-	sqlQuery := `SELECT DISTINCT u.nickname, u.fullname, u.about, u.email
-				FROM forums f
-				JOIN threads t on f.slug=t.forum
-				JOIN users u on t.author=u.nickname
-				WHERE f.slug like $1`
-
-	if query.Since != "" {
-		if query.Desc {
-			sqlQuery += fmt.Sprintf(" AND u.nickname < '%s'", query.Since)
-		} else {
-			sqlQuery += fmt.Sprintf(" AND u.nickname > '%s'", query.Since)
-		}
-	}
-	sqlQuery += ` UNION DISTINCT SELECT DISTINCT u.nickname, u.fullname, u.about, u.email
-	FROM forums f
-	JOIN posts p on f.slug=p.forum
-	JOIN users u on p.author=u.nickname
-	WHERE f.slug like $1`
+	sqlQuery := `SELECT u.nickname, u.fullname, u.about, u.email
+				FROM users u
+				JOIN UsersForum f on f.userNickname=u.nickname
+				WHERE f.forum=$1`
 
 	if query.Since != "" {
 		if query.Desc {
@@ -144,7 +130,6 @@ func (db *Database) GetUsersByForum(query models.URLQuery) (users models.Users, 
 	}
 
 	sqlQuery += ` LIMIT $2;`
-	//fmt.Println(sqlQuery)
 	rows, err := db.DB.Query(sqlQuery, query.Slug, query.Limit)
 	if err != nil {
 		return
